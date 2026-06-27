@@ -1,0 +1,30 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.swp
+*.DS_Store
+
+## Migrations (optional – remove if you want to commit them)
+# SRC/Infrastructure/Persistence/Migrations/
+
+## Secrets / local overrides — never commit real credentials
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json
+
+## NuGet
+*.nupkg
+.nuget/
+
+## Rider / JetBrains
+.idea/
+
+## VS Code
+.vscode/
+
+## Build output
+publish/
+artifacts/

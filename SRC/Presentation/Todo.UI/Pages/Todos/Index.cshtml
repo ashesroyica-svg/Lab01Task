@@ -1,0 +1,136 @@
+@page "/Todos"
+@model Todo.UI.Pages.Todos.IndexModel
+@{
+    ViewData["Title"] = "Tasks";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Tasks</div>
+        <div class="page-sub" id="taskCount">Loading…</div>
+    </div>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#todoModal" onclick="openCreateModal()">
+        <i class="bi bi-plus-lg me-1"></i> New Task
+    </button>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <select id="filterProject" class="form-select" style="max-width:160px" onchange="loadTasks()">
+        <option value="">All Projects</option>
+    </select>
+    <select id="filterStatus" class="form-select" style="max-width:140px" onchange="loadTasks()">
+        <option value="">All Statuses</option>
+        <option value="Pending">Pending</option>
+        <option value="InProgress">In Progress</option>
+        <option value="Completed">Completed</option>
+    </select>
+    <select id="filterPriority" class="form-select" style="max-width:130px" onchange="loadTasks()">
+        <option value="">All Priorities</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select>
+    <div class="search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" id="searchInput" class="form-control" placeholder="Search tasks…" />
+    </div>
+    <button class="btn-icon" onclick="clearFilters()" title="Clear filters">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<!-- Task Grid -->
+<div id="taskGrid" class="row g-3"></div>
+
+<!-- Empty State (outside grid) -->
+<div id="emptyState" class="d-none">
+    <div class="empty-state">
+        <i class="bi bi-list-check"></i>
+        <p>No tasks found. Create your first task!</p>
+    </div>
+</div>
+
+<!-- Task Modal -->
+<div class="modal fade" id="todoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">New Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalAlert" class="alert d-none mb-3" role="alert"></div>
+                <input type="hidden" id="editId" />
+                <div class="mb-3">
+                    <label class="form-label">Project <span class="text-danger">*</span></label>
+                    <select id="tProject" class="form-select">
+                        <option value="">Select project…</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" id="tTitle" class="form-control" maxlength="300" placeholder="Task title…" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea id="tDesc" class="form-control" rows="3" maxlength="2000" placeholder="Optional details…"></textarea>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Status</label>
+                        <select id="tStatus" class="form-select">
+                            <option value="Pending">Pending</option>
+                            <option value="InProgress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Priority</label>
+                        <select id="tPriority" class="form-select">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" id="tDueDate" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="saveTask()">
+                    <i class="bi bi-check-lg me-1"></i><span id="saveTxt">Save Task</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Delete <strong id="delName"></strong>? This cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete()">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="~/js/todos.js"></script>
+}

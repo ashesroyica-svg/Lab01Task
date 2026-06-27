@@ -1,0 +1,74 @@
+@page "/Dashboard"
+@model Todo.UI.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="todayDate"></div>
+    </div>
+    <a href="/Todos" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i> New Task
+    </a>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card kpi-primary">
+            <div class="kpi-icon"><i class="bi bi-folder2-open"></i></div>
+            <div class="kpi-value" id="kpiProjects">—</div>
+            <div class="kpi-label">Total Projects</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card kpi-warning">
+            <div class="kpi-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div class="kpi-value" id="kpiPending">—</div>
+            <div class="kpi-label">Pending Tasks</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card kpi-danger">
+            <div class="kpi-icon"><i class="bi bi-fire"></i></div>
+            <div class="kpi-value" id="kpiHigh">—</div>
+            <div class="kpi-label">High Priority</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card kpi-success">
+            <div class="kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="kpi-value" id="kpiDone">—</div>
+            <div class="kpi-label">Completed</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="chart-card h-100">
+            <div class="chart-title">Tasks per Project</div>
+            <div class="chart-sub">How tasks are distributed across your projects</div>
+            <div class="chart-wrap">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="chart-card h-100">
+            <div class="chart-title">Task Status</div>
+            <div class="chart-sub">Overall status distribution</div>
+            <div class="chart-wrap">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="~/js/dashboard.js"></script>
+}

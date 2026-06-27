@@ -1,0 +1,127 @@
+@page "/Projects"
+@model Todo.UI.Pages.Projects.IndexModel
+@{
+    ViewData["Title"] = "Projects";
+    Layout = "_Layout";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Projects</div>
+        <div class="page-sub" id="projectCount">Loading…</div>
+    </div>
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#projectModal" onclick="openCreateModal()">
+        <i class="bi bi-plus-lg me-1"></i> New Project
+    </button>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <select id="filterStatus" class="form-select" style="max-width:140px" onchange="loadProjects()">
+        <option value="">All Statuses</option>
+        <option value="Active">Active</option>
+        <option value="OnHold">On Hold</option>
+        <option value="Completed">Completed</option>
+    </select>
+    <select id="filterPriority" class="form-select" style="max-width:140px" onchange="loadProjects()">
+        <option value="">All Priorities</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select>
+    <div class="search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" id="searchInput" class="form-control" placeholder="Search projects…" />
+    </div>
+    <button class="btn-icon" onclick="clearFilters()" title="Clear filters">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<!-- Project Grid -->
+<div id="projectGrid" class="row g-3"></div>
+
+<!-- Empty State (outside grid so innerHTML won't remove it) -->
+<div id="emptyState" class="d-none">
+    <div class="empty-state">
+        <i class="bi bi-folder2-open"></i>
+        <p>No projects found. Create your first project!</p>
+    </div>
+</div>
+
+<!-- Project Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalAlert" class="alert d-none mb-3" role="alert"></div>
+                <input type="hidden" id="editId" />
+                <div class="mb-3">
+                    <label class="form-label">Project Name <span class="text-danger">*</span></label>
+                    <input type="text" id="pName" class="form-control" maxlength="200" placeholder="e.g. Website Redesign" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea id="pDesc" class="form-control" rows="3" maxlength="1000" placeholder="Brief description…"></textarea>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Status</label>
+                        <select id="pStatus" class="form-select">
+                            <option value="Active">Active</option>
+                            <option value="OnHold">On Hold</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Priority</label>
+                        <select id="pPriority" class="form-select">
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" id="pDueDate" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="saveProject()">
+                    <i class="bi bi-check-lg me-1"></i><span id="saveTxt">Save Project</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Delete <strong id="delName"></strong>? This cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete()">
+                    <i class="bi bi-trash me-1"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="~/js/projects.js"></script>
+}
