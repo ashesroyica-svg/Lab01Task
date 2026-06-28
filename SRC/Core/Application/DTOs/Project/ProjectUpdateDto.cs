@@ -10,10 +10,10 @@ public class ProjectUpdateDto
     [MaxLength(1000)]
     public string? Description { get; set; }
 
-    [Required]
+    [Required, AllowedValues("Active", "OnHold", "Completed")]
     public string Status { get; set; } = "Active";
 
-    [Required]
+    [Required, AllowedValues("Low", "Medium", "High")]
     public string Priority { get; set; } = "Medium";
 
     public DateTime? DueDate { get; set; }

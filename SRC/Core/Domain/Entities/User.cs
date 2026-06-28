@@ -9,6 +9,8 @@ public class User
     public bool IsDeleted { get; set; } = false;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedDate { get; set; }
+    public int FailedLoginAttempts { get; set; } = 0;
+    public DateTime? LockoutUntil { get; set; }
 
     public ICollection<Project> Projects { get; set; } = new List<Project>();
     public ICollection<TodoTask> Tasks { get; set; } = new List<TodoTask>();

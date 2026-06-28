@@ -4,6 +4,6 @@ namespace Application.DTOs.Todo;
 
 public class TodoStatusUpdateDto
 {
-    [Required]
+    [Required, AllowedValues("Pending", "InProgress", "Completed")]
     public string Status { get; set; } = string.Empty;
 }

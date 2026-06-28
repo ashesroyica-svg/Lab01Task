@@ -13,10 +13,10 @@ public class TodoUpdateDto
     [MaxLength(2000)]
     public string? Description { get; set; }
 
-    [Required]
+    [Required, AllowedValues("Low", "Medium", "High")]
     public string Priority { get; set; } = "Medium";
 
-    [Required]
+    [Required, AllowedValues("Pending", "InProgress", "Completed")]
     public string Status { get; set; } = "Pending";
 
     public DateTime? DueDate { get; set; }

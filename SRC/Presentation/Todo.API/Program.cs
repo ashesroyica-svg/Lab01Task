@@ -1,8 +1,10 @@
 using Application.RepositoryInterfaces;
 using Application.ServiceInterfaces;
 using Application.Services;
+using Application.Settings;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +12,7 @@ using Persistence.Context;
 using Persistence.Helpers;
 using Persistence.Repositories;
 using System.Text;
+using System.Threading.RateLimiting;
 using Todo.API.Helpers;
 
 // Load .env into environment variables before the host reads configuration.
@@ -18,6 +21,9 @@ using Todo.API.Helpers;
 Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// L3: Limit request body to 1 MB
+builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = 1_048_576);
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -38,6 +44,9 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+// M3: Bind JwtSettings so AuthService can read ExpiryInMinutes
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
 // JWT Authentication
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"]!;
 var jwtIssuer = builder.Configuration["JwtSettings:Issuer"]!;
@@ -56,17 +65,45 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
+
+        // H1: Also accept JWT from HttpOnly cookie as fallback
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                if (string.IsNullOrEmpty(ctx.Token))
+                    ctx.Token = ctx.Request.Cookies["ica_auth"];
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
 
-// CORS — allow UI origin
+// H2: Rate limiting — 10 requests per minute per IP on auth endpoints
+builder.Services.AddRateLimiter(opts =>
+{
+    opts.AddFixedWindowLimiter("auth", o =>
+    {
+        o.PermitLimit = 10;
+        o.Window = TimeSpan.FromMinutes(1);
+        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        o.QueueLimit = 0;
+    });
+    opts.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+// L1: CORS origin(s) from config — required for AllowCredentials()
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+                     ?? ["http://localhost:5000"];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowUI", policy =>
-        policy.WithOrigins("http://localhost:5000", "https://localhost:5000")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
-              .AllowAnyHeader());
+              .AllowAnyHeader()
+              .AllowCredentials()); // H1: needed for cookie-based auth
 });
 
 builder.Services.AddControllers();
@@ -103,6 +140,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowUI");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

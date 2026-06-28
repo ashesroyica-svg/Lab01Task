@@ -7,8 +7,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign In — ICA TaskFlow</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          integrity="sha384-tViUnnbYAV00FLIhhi3v/dWt3Jxw4gZQcNoSCxCIFNJVCx7/D55/wXsrNIRANwdD"
+          crossorigin="anonymous" />
     <link rel="stylesheet" href="~/css/site.css" />
     <script>(function(){var t=localStorage.getItem('ica_theme')||'light';document.documentElement.setAttribute('data-bs-theme',t);})();</script>
 </head>
@@ -54,9 +60,11 @@
 </div>
 
 <script>
-    const API_BASE = 'http://localhost:5001/api';
+    // H3: API base from server config
+    const API_BASE = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ApiBase));
 
-    if (localStorage.getItem('ica_token')) {
+    // If already logged in (username present), skip login page
+    if (localStorage.getItem('ica_username')) {
         window.location.replace('/Dashboard');
     }
 
@@ -74,14 +82,15 @@
 
         setLoading(true);
         try {
-            var res  = await fetch(API_BASE + '/auth/login', {
+            var res = await fetch(API_BASE + '/auth/login', {
                 method: 'POST',
+                credentials: 'include', // H1: send/receive HttpOnly cookie
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, password: password })
             });
             var data = await res.json();
             if (data.success) {
-                localStorage.setItem('ica_token',    data.data.token);
+                // H1: Token is stored in HttpOnly cookie by the server — not in localStorage
                 localStorage.setItem('ica_username', data.data.username);
                 window.location.href = '/Dashboard';
             } else {

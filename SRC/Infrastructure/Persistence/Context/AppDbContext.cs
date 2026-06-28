@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
             e.Property(u => u.Email).HasMaxLength(255).IsRequired();
             e.Property(u => u.PasswordHash).HasMaxLength(500).IsRequired();
             e.HasIndex(u => u.Email).IsUnique();
+            e.HasQueryFilter(u => !u.IsDeleted);
         });
 
         // TBL_Project
