@@ -14,6 +14,7 @@ obj/
 appsettings.Development.json
 appsettings.Local.json
 appsettings.*.json
+.env
 
 ## NuGet
 *.nupkg

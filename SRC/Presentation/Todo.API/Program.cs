@@ -1,6 +1,7 @@
 using Application.RepositoryInterfaces;
 using Application.ServiceInterfaces;
 using Application.Services;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +11,11 @@ using Persistence.Helpers;
 using Persistence.Repositories;
 using System.Text;
 using Todo.API.Helpers;
+
+// Load .env into environment variables before the host reads configuration.
+// TraversePath() walks up from the current directory, so the file can sit
+// alongside the project or at the solution root.
+Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
